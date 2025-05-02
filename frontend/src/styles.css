@@ -1,116 +1,293 @@
-/* styles.css */
-
-/* Reset some default styling */
+/* General Styles */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: Arial, sans-serif;
-    background-color: white;
-    color: #333;
-    margin: 0;
-    padding: 0;
-  }
-  
-  h1, h2, h3 {
-    color: #003366; /* Classic blue */
-  }
-  
-  h1 {
-    font-size: 3rem;
-    text-align: center;
-    margin-top: 20px;
-  }
-  
-  section {
-    padding: 20px;
-    margin: 20px auto;
-    max-width: 800px;
-  }
-  
-  section h2 {
-    color: #cc0000; /* Classic red */
-  }
-  
-  section p {
-    font-size: 1.2rem;
-    color: #666;
-  }
-  
-  footer {
-    background-color: #003366; /* Classic blue */
-    color: white;
-    text-align: center;
-    padding: 20px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-  }
-  
-  nav ul {
-    list-style: none;
-    display: flex;
-    justify-content: space-around;
-    background-color: #003366;
-    padding: 10px 0;
-    margin: 0;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #FAF3E0; /* Soft gold background */
+  color: #2E4719;           /* Deep green text */
+  padding: 20px;
+}
+
+/* Navigation Bar */
+nav {
+  background-color: #4F772D; /* Dark green */
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 20px;
 }
 
 nav ul li {
-    color: white;
-    font-size: 18px;
+  font-size: 18px;
 }
 
 nav ul li a {
-    color: white;
-    text-decoration: none;
-    padding: 5px 10px;
+  color: #FAF3E0;     /* Light gold text */
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: 0.3s;
 }
 
 nav ul li a:hover {
-    background-color: #0066cc;
-    border-radius: 5px;
+  background-color: #FFD700; /* Gold hover effect */
+  color: #2E4719;
 }
 
-/* src/styles.css */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
+/* Home Page */
+.home-container {
+  text-align: center;
+  padding: 30px;
 }
 
 h1 {
-    color: #0056b3;
+  font-size: 3rem;
+  color: #4F772D; /* Deep green */
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.intro-text {
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin: 10px auto;
+  line-height: 1.5;
+}
+
+.info-section, .questions, .reviews-section {
+  background: white;
+  padding: 20px;
+  margin: 20px auto;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 700px;
+  text-align: left;
 }
 
 h2 {
-    color: #ff0000;
+  font-size: 1.8rem;
+  color: #B8860B; /* Gold */
+  margin-bottom: 10px;
 }
 
-h3 {
-    color: #32cd32;
+h4 {
+  font-size: 1.8rem;
+  color: #4F772D; /* Deep green */ 
+  margin-bottom: 10px;
 }
 
+p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* Call to Action Button */
+.cta-button {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 12px 20px;
+  background-color: #B8860B; /* Gold */
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+.cta-button:hover {
+  background-color: #FFD700; /* Lighter Gold */
+  color: #2E4719;
+}
+
+/* Review Buttons */
+.review-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.review-button {
+  background-color: #B8860B; 
+  color: white;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.review-button:hover {
+  background-color: #FFD700;
+  color: #B8860B;
+}
+
+/* Footer */
+footer {
+  background-color: #4F772D;
+  color: white;
+  text-align: center;
+  padding: 15px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+/* Buttons */
 button {
-    background-color: #0056b3;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    margin-top: 20px;
+  background-color: #B8860B;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: 0.3s;
 }
 
 button:hover {
-    background-color: #00408b;
+  background-color: #FFD700;
+  color: #2E4719;
 }
 
+/* Form Inputs */
 input, select {
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-    border: 1px solid #ddd;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  width: 100%;
+  font-size: 1rem;
+}
+
+/* Container (applies to multiple pages, including Services) */
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 30px;
+  text-align: center;
+}
+
+/* Page Title inside container */
+.container > h1 {
+  font-size: 2.8rem;
+  color: #4F772D; /* Deep green */
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Service List Layout */
+.service-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* Individual Service Card */
+.service-item {
+  background: linear-gradient(135deg, white, white);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
+  width: 45%; /* Two columns on larger screens */
+  text-align: left;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Service Item Title (with emoji) */
+.service-item h3 {
+  display: flex;
+  align-items: center;
+  font-size: 1.6rem;
+  color: #B8860B;
+  margin-bottom: 8px;
+}
+
+/* Service Text */
+.service-item p {
+  font-size: 1.1rem;
+  color: #333;
+  margin-top: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .home-container {
+    padding: 20px;
+  }
+
+  .info-section {
+    padding: 15px;
+  }
+
+  /* Resize main heading on smaller screens */
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  p {
+    font-size: 1rem;
+  }
+
+  /* Reduce container padding for mobile */
+  .container {
+    padding: 20px;
+  }
+
+  /* Make services single-column on mobile */
+  .service-item {
     width: 100%;
+  }
+
+  /* Reduce space between title and description */
+.container > h1 {
+  font-size: 2.8rem;
+  color: #4F772D; /* Deep green */
+  margin-bottom: 5px;  /* Reduce bottom space */
+  text-align: center;
+}
+
+/* Reduce space between description and services */
+.container > p {
+  font-size: 1.2rem;
+  margin-top: 0px;  /* Remove extra space */
+  margin-bottom: 20px; /* Slight space before cards */
+  text-align: center;
+  color: #555; /* Optional: Slightly dim color for contrast */
+}
+
+.now-serving-animate {
+  animation: fadeHighlight 1s ease-in-out;
+}
+
+@keyframes fadeHighlight {
+  0% {
+      background-color: #ffeeba;
+      color: #333;
+      transform: scale(1.1);
+  }
+  50% {
+      background-color: #fff3cd;
+  }
+  100% {
+      background-color: transparent;
+      transform: scale(1);
+  }
+}
+
 }

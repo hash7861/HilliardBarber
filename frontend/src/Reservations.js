@@ -1,111 +1,102 @@
 import React, { useState, useEffect } from 'react';
+import './styles.css';
 
-const API_BASE_URL = "http://172.31.21.190:5000"; // Updated to match Flask server IP
+const API_BASE_URL = "http://localhost:5000";
+console.log("🔌 API_BASE_URL is:", API_BASE_URL);
 
 function Reservations() {
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
+    const [availableSlots, setAvailableSlots] = useState([]);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [availableSlots, setAvailableSlots] = useState([]);
-    const [nowServing, setNowServing] = useState('');
-    const [waitingTime, setWaitingTime] = useState('');
 
-    // Fetch available slots from the backend
     useEffect(() => {
         const fetchAvailableSlots = async () => {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/available-slots`);
                 const data = await response.json();
                 setAvailableSlots(data.available_slots || []);
-            } catch (error) {
-                console.error("Error fetching available slots:", error);
+                setError('');
+            } catch (err) {
+                console.error("Error fetching available slots:", err);
+                setError("Failed to load available slots. Please refresh.");
             }
         };
+
         fetchAvailableSlots();
     }, []);
 
-    // Fetch current queue status from the backend
-    useEffect(() => {
-        const fetchQueueStatus = async () => {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/queue`);
-                const data = await response.json();
-                setNowServing(data.now_serving?.name || 'N/A');
-                setWaitingTime(`${data.waiting_time || 0} minutes`);
-            } catch (error) {
-                console.error("Error fetching queue status:", error);
-            }
-        };
-        fetchQueueStatus();
-    }, []);
-
-    // Validate selected date
-    const isDateWithinRange = (date) => {
-        const today = new Date();
-        const selected = new Date(date);
-        const maxDate = new Date();
-        maxDate.setDate(today.getDate() + 6); // 6 days from today
-        return selected >= today && selected <= maxDate;
+    const formatTimeAMPM = (time) => {
+        const [hourStr, minuteStr] = time.split(":");
+        let hour = parseInt(hourStr);
+        const minute = minuteStr.padStart(2, '0');
+        const ampm = hour >= 12 ? "PM" : "AM";
+        hour = hour % 12 || 12;
+        return `${hour}:${minute} ${ampm}`;
     };
 
-    // Handle form submission
+    const today = new Date().toISOString().split("T")[0];
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 7);
+    const maxDateString = maxDate.toISOString().split("T")[0];
+
+    const getFilteredTimeSlots = () => {
+        if (!selectedDate) return [];
+        return availableSlots
+            .filter(slot => slot.startsWith(selectedDate))
+            .map(slot => slot.split(" ")[1]);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setSuccess('');
 
-        if (!selectedTime || !name || !phone) {
-            setError('Please fill in all fields.');
+        if (!selectedDate || !selectedTime || !name || !phone) {
+            setError("Please fill in all required fields.");
             return;
         }
 
-        if (!isDateWithinRange(selectedDate)) {
-            setError('Selected date is outside the allowed range.');
-            return;
-        }
+        const fullTime = `${selectedDate} ${selectedTime}`;
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/reservations`, {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     name,
                     phone,
-                    time: selectedTime,
+                    time: fullTime
                 }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                setSuccess('Appointment booked successfully!');
+                setSuccess("Appointment booked successfully! See Waitlist tab.");
                 setSelectedDate('');
                 setSelectedTime('');
                 setName('');
                 setPhone('');
             } else {
-                setError(data.error || 'Failed to book the appointment.');
+                setError(data.error || "Failed to book the appointment.");
             }
-        } catch (error) {
-            console.error('Error creating reservation:', error);
-            setError('Something went wrong. Please try again.');
+        } catch (err) {
+            console.error("Error creating reservation:", err);
+            setError("Something went wrong. Please try again.");
         }
     };
 
     return (
-        <div>
+        <div style={{ textAlign: 'center', padding: '20px' }}>
             <h1>Book Your Appointment</h1>
-
-            <div>
-                <h2>Now Serving: {nowServing}</h2>
-                <h3>Estimated Waiting Time: {waitingTime}</h3>
-            </div>
-
+            <br />
+            <h4>Please see details about booking on Home page. Note: This page is still in development</h4>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Date:</label>
@@ -116,6 +107,8 @@ function Reservations() {
                             setSelectedDate(e.target.value);
                             setSelectedTime('');
                         }}
+                        min={today}
+                        max={maxDateString}
                         required
                     />
                 </div>
@@ -127,16 +120,12 @@ function Reservations() {
                         onChange={(e) => setSelectedTime(e.target.value)}
                         required
                     >
-                        <option value="" disabled>
-                            Select a time slot
-                        </option>
-                        {availableSlots
-                            .filter((slot) => slot.startsWith(selectedDate))
-                            .map((slot, index) => (
-                                <option key={index} value={slot}>
-                                    {slot}
-                                </option>
-                            ))}
+                        <option value="" disabled>Select a time slot</option>
+                        {getFilteredTimeSlots().map((time, idx) => (
+                            <option key={idx} value={time}>
+                                {formatTimeAMPM(time)}
+                            </option>
+                        ))}
                     </select>
                 </div>
 
@@ -146,6 +135,7 @@ function Reservations() {
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
+                        placeholder="Enter your name"
                         required
                     />
                 </div>
@@ -156,19 +146,29 @@ function Reservations() {
                         type="text"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
+                        placeholder="Enter your phone number"
                         required
                     />
                 </div>
 
-                {error && <div style={{ color: 'red' }}>{error}</div>}
-                {success && <div style={{ color: 'green' }}>{success}</div>}
+                {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
+                {success && <div style={{ color: 'green', marginTop: '10px' }}>{success}</div>}
 
-                <button type="submit">Book Appointment</button>
+                <button
+                    type="submit"
+                    style={{
+                        marginTop: '10px',
+                        padding: '10px',
+                        backgroundColor: '#28a745',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                        borderRadius: '5px'
+                    }}
+                >
+                    Book Appointment
+                </button>
             </form>
-
-            <div>
-                <p>Barber's Working Hours: 11:00 AM - 8:00 PM</p>
-            </div>
         </div>
     );
 }
