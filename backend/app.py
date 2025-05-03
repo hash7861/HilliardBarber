@@ -1,12 +1,13 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from dateutil import parser
+import os
 
-# Create Flask app
-app = Flask(__name__)
-CORS(app)  # Enable CORS immediately after app is created
+# Create Flask app with static and template folders
+app = Flask(__name__, static_folder="static", template_folder="templates")
+CORS(app)  # Enable CORS
 
 # Database config
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///barber_queue.db"
@@ -32,10 +33,17 @@ class Reservation(db.Model):
 with app.app_context():
     db.create_all()
 
-@app.route('/')
-def home():
-    return jsonify({"message": "Welcome to the Hilliard Barber API!"})
+# React frontend entry point
+@app.route("/")
+def index():
+    return render_template("index.html")
 
+# Serve static files like bundle.js
+@app.route("/static/<path:filename>")
+def static_files(filename):
+    return send_from_directory(os.path.join(app.root_path, "static"), filename)
+
+# API: Get current queue status or serve next customer
 @app.route('/api/queue', methods=['GET', 'DELETE'])
 def manage_queue():
     current_reservation = Reservation.query.order_by(Reservation.time).first()
@@ -58,6 +66,7 @@ def manage_queue():
             })
         return jsonify({"error": "No customers in queue"}), 404
 
+# API: Return available reservation slots
 @app.route('/api/available-slots', methods=['GET'])
 def get_available_slots():
     now = datetime.now()
@@ -77,6 +86,7 @@ def get_available_slots():
 
     return jsonify({"available_slots": available_slots})
 
+# API: Create a new reservation
 @app.route('/api/reservations', methods=['POST'])
 def create_reservation():
     data = request.get_json()
@@ -107,11 +117,13 @@ def create_reservation():
     except ValueError:
         return jsonify({"error": "Invalid time format"}), 400
 
+# API: Get full waitlist
 @app.route('/api/waitlist', methods=['GET'])
 def get_waitlist():
     reservations = Reservation.query.order_by(Reservation.time).all()
     return jsonify({"waitlist": [r.to_dict() for r in reservations]})
 
+# Start Flask app
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
