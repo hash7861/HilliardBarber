@@ -4,16 +4,20 @@
 // all that the website prints is "Welcome to abdurrahim's Hilliard barbershop"
 
 // March 17th
-// major progress made; finally configured the Reservations tab
+// major progress made; finally configured the Services and Reservations tabs
 // now starting to work on figuring out SQL to keep a database for a Waitlist 
 
 // May 2nd
 // completed hosting process via Render.com; after what felt like forever this project is DONE
 // continuous tweaking being done 
 
+// May 5th
+// configured admin login access, enabling it with tasks to call and remove customers from the queue; some other tedious changes were made
+// website is deployed, awaiting response from the client(s) before making new changes
+
 # HilliardBarberCuts
 
-A full-stack web application that enables clients to view service options, book appointments, and check their place in a real-time waitlist for a barber shop in Hilliard, Ohio. Built with a custom React frontend and Flask backend, and deployed as a unified web service on Render.
+A full-stack web application built to modernize how a local barber shop in Hilliard, Ohio manages client appointments and walk-in traffic. It enables clients to book appointments and check their place in a real-time waitlist, while providing barbers with a dedicated admin view to manage the queue efficiently. The system is built with a custom React frontend and a Flask backend, and is deployed as a single unified service on Render.
 
 ---
 
@@ -48,12 +52,21 @@ Visit the live site: [https://hilliardbarbercuts.onrender.com](https://hilliardb
 
 ## ✨ Features
 
-- **Responsive Barber Shop Landing Page**
-- **Book a Reservation** — clients can choose from available time slots
-- **Live Waitlist** — barbers can view who's up next and how long each wait is
-- **Real-Time Countdown** — shows how long until each appointment
-- **Data Persistence** — reservations stored in a local SQLite database
-- **Modern UI/UX** — styled and optimized for web and mobile
+✅ Responsive Landing Page — built for both mobile and desktop
+
+📅 Appointment Booking — choose from only valid time slots (no Sundays or blocked hours)
+
+🔐 Admin Dashboard — secure view for barbers to monitor and manage clients
+
+📋 Live Waitlist — barbers and clients can see who is on the chair, who is next for that day, and who else is on the waitlist
+
+⏱ Next Appointment Times For Today — informs customers the next available appointment for that day
+
+💾 Data Persistence — all reservations stored in a SQLite database
+
+📆 Date Restrictions — bookings limited to current day up to one week ahead
+
+📱 Modern UI/UX — user-friendly design tailored for simplicity and clarity
 
 ---
 
@@ -100,10 +113,11 @@ HilliardBarber/
 
 ## 📌 Future Improvements
 
-- Admin login/dashboard for barbers
 - SMS appointment reminders
-- Calendar view for reservations
 - More responsive design on smaller devices
+- Add more Services and visual pictures to Home/Services tab
+- Allocate more days for bookings (right now it is 6 days in advance)
+- Enable a cleaner view to see upcoming reservations/bookings on the Waitlist Page
 
 ---
 

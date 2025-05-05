@@ -1,37 +1,33 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
 
 const API_BASE_URL = "http://localhost:5000";
 
 function Waitlist() {
     const [waitlist, setWaitlist] = useState([]);
     const [nowServing, setNowServing] = useState('N/A');
-    const [countdown, setCountdown] = useState(null);
+    const [nextSlot, setNextSlot] = useState('Loading...');
     const [animate, setAnimate] = useState(false);
 
     const today = new Date().toISOString().split('T')[0];
 
-    function convertTo12HourFormat(timeStr) {
-        const [hourStr, minuteStr] = timeStr.split(":");
-        let hour = parseInt(hourStr);
-        const minute = parseInt(minuteStr);
-        const ampm = hour >= 12 ? "PM" : "AM";
-        hour = hour % 12 || 12;
-        return `${hour}:${minute.toString().padStart(2, "0")} ${ampm}`;
-    }
+    useEffect(() => {
+        fetchWaitlist();
+        fetchQueueStatus();
+        fetchNextAvailableSlot();
 
-    function formatCountdown(seconds) {
-        const hrs = Math.floor(seconds / 3600);
-        const mins = Math.floor((seconds % 3600) / 60);
-        const secs = seconds % 60;
-        return hrs > 0
-            ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-            : `${mins}:${secs.toString().padStart(2, '0')}`;
-    }
+        const interval = setInterval(() => {
+            fetchWaitlist();
+            fetchQueueStatus();
+            fetchNextAvailableSlot();
+        }, 30000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     const fetchWaitlist = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/waitlist`);
-            const data = await response.json();
+            const res = await fetch(`${API_BASE_URL}/api/waitlist`);
+            const data = await res.json();
             setWaitlist(data.waitlist || []);
         } catch (error) {
             console.error("Error fetching waitlist:", error);
@@ -40,8 +36,8 @@ function Waitlist() {
 
     const fetchQueueStatus = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/queue`);
-            const data = await response.json();
+            const res = await fetch(`${API_BASE_URL}/api/queue`);
+            const data = await res.json();
 
             setNowServing(prev => {
                 if (data.now_serving?.name && data.now_serving.name !== prev) {
@@ -50,60 +46,36 @@ function Waitlist() {
                 }
                 return data.now_serving?.name || 'N/A';
             });
-
-            const { now_serving } = data;
-            const todaysClients = (data.waitlist || []).filter(p => p.time.split(" ")[0] === today);
-            const indexNowServing = todaysClients.findIndex(p => p.name === data.now_serving?.name);
-            const peopleLeft = indexNowServing !== -1 ? todaysClients.length - (indexNowServing + 1) : 0;
-            const estimatedWait = peopleLeft * 30 * 60; // in seconds
-
-            setCountdown(peopleLeft > 0 ? estimatedWait : null);
         } catch (error) {
             console.error("Error fetching queue status:", error);
         }
     };
 
-    const serveNextCustomer = async () => {
-        const confirm = window.confirm("Are you sure you want to serve the next customer?");
-        if (!confirm) return;
-
+    const fetchNextAvailableSlot = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/queue`, {
-                method: "DELETE",
-            });
-            const data = await response.json();
-            console.log(data.message);
-
-            fetchWaitlist();
-            fetchQueueStatus();
+            const res = await fetch(`${API_BASE_URL}/api/available-slots`);
+            const data = await res.json();
+            const todaySlots = (data.available_slots || []).filter(slot => slot.startsWith(today));
+            if (todaySlots.length > 0) {
+                const time = todaySlots[0].split(" ")[1];
+                setNextSlot(convertTo12HourFormat(time));
+            } else {
+                setNextSlot("Fully Booked");
+            }
         } catch (error) {
-            console.error("Error serving next customer:", error);
+            console.error("Error fetching available slots:", error);
+            setNextSlot("Error");
         }
     };
 
-    useEffect(() => {
-        fetchWaitlist();
-        fetchQueueStatus();
-        const interval = setInterval(() => {
-            fetchWaitlist();
-            fetchQueueStatus();
-        }, 30000);
-        return () => clearInterval(interval);
-    }, []);
-
-    useEffect(() => {
-        if (countdown === null || countdown <= 0) return;
-        const timer = setInterval(() => {
-            setCountdown(prev => {
-                if (prev <= 1) {
-                    clearInterval(timer);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-        return () => clearInterval(timer);
-    }, [countdown]);
+    const convertTo12HourFormat = (timeStr) => {
+        const [hourStr, minuteStr] = timeStr.split(":");
+        let hour = parseInt(hourStr);
+        const minute = parseInt(minuteStr);
+        const ampm = hour >= 12 ? "PM" : "AM";
+        hour = hour % 12 || 12;
+        return `${hour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+    };
 
     return (
         <div style={{ textAlign: 'center', padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
@@ -113,10 +85,12 @@ function Waitlist() {
                 border: "2px solid #4d7c0f",
                 borderRadius: "10px",
                 padding: "20px",
-                margin: "0 auto 40px auto",
-                maxWidth: "600px",
+                marginBottom: "40px",
                 backgroundColor: "#f9fff2",
-                boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
+                boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                maxWidth: "600px",
+                marginLeft: "auto",
+                marginRight: "auto"
             }}>
                 <h2
                     className={animate ? "now-serving-animate" : ""}
@@ -126,59 +100,41 @@ function Waitlist() {
                 </h2>
 
                 <h3 style={{ color: "green" }}>
-                    Estimated Waiting Time Today: {countdown === null ? "N/A" : countdown > 0 ? formatCountdown(countdown) : "Waiting..."}
+                    Next Slot Available Today: {nextSlot}
                 </h3>
 
-                <button 
-                    onClick={serveNextCustomer}
-                    style={{
-                        padding: "10px 15px",
-                        fontSize: "16px",
-                        backgroundColor: "#28a745",
-                        color: "white",
-                        border: "none",
-                        cursor: "pointer",
-                        borderRadius: "5px",
-                        marginTop: "10px"
-                    }}
-                >
-                    Serve Next Customer
-                </button>
-
                 <div style={{ marginTop: "20px", fontSize: "14px", textAlign: "left" }}>
-                <strong>Legend:</strong>
-                <ul style={{ listStyle: "none", paddingLeft: 0, marginTop: "8px" }}>
-                    <li style={{ marginBottom: "5px" }}>
-                        <span style={{
-                        display: "inline-block",
-                        width: "15px",
-                        height: "15px",
-                        backgroundColor: "#ffdddd",
-                        border: "1px solid #ccc",
-                        marginRight: "8px",
-                        verticalAlign: "middle"
-                    }}></span>
-                    Now Serving
-                    </li>
-                    <li>
-                        <span style={{
-                            display: "inline-block",
-                            width: "15px",
-                            height: "15px",
-                            backgroundColor: "#cce5ff",
-                            border: "1px solid #ccc",
-                            marginRight: "8px",
-                            verticalAlign: "middle"
-                    }}></span>
-                    Appointment Today
-                    </li>
-                </ul>
-                <p style={{ marginTop: "12px", fontSize: "13px", color: "#555" }}>
-                <strong>Note:</strong> If the estimated waiting time says <em>N/A</em>, there may be no one currently in line.
-                Please refresh the page to get the latest status <strong>every 30 seconds</strong>
-                This could mean the barber is available soon. Feel free to <strong>book now</strong> or <strong>call the barber</strong> to check walk-in availability.
-                The barber's phone number is <strong>+1 (123) 456-7890</strong>.
-                </p>
+                    <strong>Legend:</strong>
+                    <ul style={{ listStyle: "none", paddingLeft: 0, marginTop: "8px" }}>
+                        <li style={{ marginBottom: "5px" }}>
+                            <span style={{
+                                display: "inline-block",
+                                width: "15px",
+                                height: "15px",
+                                backgroundColor: "#ffdddd",
+                                border: "1px solid #ccc",
+                                marginRight: "8px",
+                                verticalAlign: "middle"
+                            }}></span>
+                            Now Serving
+                        </li>
+                        <li>
+                            <span style={{
+                                display: "inline-block",
+                                width: "15px",
+                                height: "15px",
+                                backgroundColor: "#cce5ff",
+                                border: "1px solid #ccc",
+                                marginRight: "8px",
+                                verticalAlign: "middle"
+                            }}></span>
+                            Appointment Today
+                        </li>
+                    </ul>
+                    <p style={{ marginTop: "12px", fontSize: "13px", color: "#555" }}>
+                        <strong>Note:</strong> If the next slot shows <em>Fully Booked</em>, there may be no availability left today.
+                        The barber's phone number is <strong>+1 (123) 456-7890</strong>. This list updates every <strong>30 seconds</strong>.
+                    </p>
                 </div>
             </div>
 
@@ -206,8 +162,8 @@ function Waitlist() {
                                 const isToday = date === today;
 
                                 let backgroundColor = index % 2 === 0 ? "#fff" : "#f9f9f9";
-                                if (isToday) backgroundColor = "#cce5ff"; // blue for today
-                                if (isCurrent) backgroundColor = "#ffdddd"; // red for now serving
+                                if (isToday) backgroundColor = "#cce5ff";
+                                if (isCurrent) backgroundColor = "#ffdddd";
 
                                 return (
                                     <tr

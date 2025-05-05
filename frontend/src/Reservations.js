@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './styles.css';
 
 const API_BASE_URL = "http://localhost:5000";
-console.log("🔌 API_BASE_URL is:", API_BASE_URL);
 
 function Reservations() {
     const [selectedDate, setSelectedDate] = useState('');
@@ -14,28 +13,27 @@ function Reservations() {
     const [success, setSuccess] = useState('');
 
     useEffect(() => {
-        const fetchAvailableSlots = async () => {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/available-slots`);
-                const data = await response.json();
-                setAvailableSlots(data.available_slots || []);
-                setError('');
-            } catch (err) {
-                console.error("Error fetching available slots:", err);
-                setError("Failed to load available slots. Please refresh.");
-            }
-        };
-
         fetchAvailableSlots();
     }, []);
+
+    const fetchAvailableSlots = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/available-slots`);
+            const data = await response.json();
+            setAvailableSlots(data.available_slots || []);
+            setError('');
+        } catch (err) {
+            console.error("Error fetching available slots:", err);
+            setError("Failed to load available slots. Please refresh.");
+        }
+    };
 
     const formatTimeAMPM = (time) => {
         const [hourStr, minuteStr] = time.split(":");
         let hour = parseInt(hourStr);
-        const minute = minuteStr.padStart(2, '0');
         const ampm = hour >= 12 ? "PM" : "AM";
         hour = hour % 12 || 12;
-        return `${hour}:${minute} ${ampm}`;
+        return `${hour}:${minuteStr.padStart(2, '0')} ${ampm}`;
     };
 
     const today = new Date().toISOString().split("T")[0];
@@ -65,14 +63,8 @@ function Reservations() {
         try {
             const response = await fetch(`${API_BASE_URL}/api/reservations`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    name,
-                    phone,
-                    time: fullTime
-                }),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, phone, time: fullTime }),
             });
 
             const data = await response.json();
@@ -83,6 +75,7 @@ function Reservations() {
                 setSelectedTime('');
                 setName('');
                 setPhone('');
+                fetchAvailableSlots();
             } else {
                 setError(data.error || "Failed to book the appointment.");
             }
@@ -130,7 +123,7 @@ function Reservations() {
                 </div>
 
                 <div>
-                    <label>Name:</label>
+                    <label>Full Name:</label>
                     <input
                         type="text"
                         value={name}
@@ -141,7 +134,7 @@ function Reservations() {
                 </div>
 
                 <div>
-                    <label>Phone:</label>
+                    <label>Phone Number:</label>
                     <input
                         type="text"
                         value={phone}
