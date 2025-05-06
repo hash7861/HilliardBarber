@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
-const API_BASE_URL = "http://localhost:5000";
+// const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://hilliardbarbercuts.onrender.com";
+// Uncomment the above line for local development
 
 function Waitlist() {
     const [waitlist, setWaitlist] = useState([]);
@@ -96,7 +98,7 @@ function Waitlist() {
                     className={animate ? "now-serving-animate" : ""}
                     style={{ color: "red", padding: "8px", borderRadius: "5px" }}
                 >
-                    Now Serving: {nowServing}
+                    Next Customer: {nowServing}
                 </h2>
 
                 <h3 style={{ color: "green" }}>
@@ -116,7 +118,7 @@ function Waitlist() {
                                 marginRight: "8px",
                                 verticalAlign: "middle"
                             }}></span>
-                            Now Serving
+                            Next Customer
                         </li>
                         <li>
                             <span style={{
@@ -132,7 +134,7 @@ function Waitlist() {
                         </li>
                     </ul>
                     <p style={{ marginTop: "12px", fontSize: "13px", color: "#555" }}>
-                        <strong>Note:</strong> If the next slot shows <em>Fully Booked</em>, there may be no availability left today.
+                        <strong>Note:</strong> If the next slot shows <em>Fully Booked</em>, there may be no appointments left today.
                         The barber's phone number is <strong>+1 (123) 456-7890</strong>. This list updates every <strong>30 seconds</strong>.
                     </p>
                 </div>

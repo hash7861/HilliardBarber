@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './styles.css';
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://hilliardbarbercuts.onrender.com";
+// const API_BASE_URL = "http://localhost:5000";
+// Uncomment the above line for local development
+
 
 function Reservations() {
     const [selectedDate, setSelectedDate] = useState('');

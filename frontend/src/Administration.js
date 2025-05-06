@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
-const API_BASE_URL = "http://localhost:5000";
+// const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://hilliardbarbercuts.onrender.com";
+// Uncomment the above line for local development
 
 function Administration() {
     const [waitlist, setWaitlist] = useState([]);
