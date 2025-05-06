@@ -98,7 +98,7 @@ function Waitlist() {
                     className={animate ? "now-serving-animate" : ""}
                     style={{ color: "red", padding: "8px", borderRadius: "5px" }}
                 >
-                    Next Customer: {nowServing}
+                    Now Serving: {nowServing}
                 </h2>
 
                 <h3 style={{ color: "green" }}>
@@ -118,7 +118,7 @@ function Waitlist() {
                                 marginRight: "8px",
                                 verticalAlign: "middle"
                             }}></span>
-                            Next Customer
+                            Now Serving
                         </li>
                         <li>
                             <span style={{
